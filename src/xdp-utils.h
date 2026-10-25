@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <gio/gdesktopappinfo.h>
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
@@ -217,6 +218,10 @@ char *xdp_generate_key (GError **error);
  * and callers do not need to check for them.
  */
 char *xdp_generate_token (void);
+
+/* Like g_desktop_app_info_new(), but also finds desktop files which GLib
+ * has not noticed yet */
+GDesktopAppInfo * xdp_desktop_app_info_new (const char *desktop_id);
 
 #define XDP_EXPORT_TEST XDP_EXPORT
 #define XDP_EXPORT __attribute__((visibility("default"))) extern

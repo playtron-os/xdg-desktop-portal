@@ -69,6 +69,21 @@ xdp_app_info_host_validate_dynamic_launcher (XdpAppInfo  *app_info,
   return TRUE;
 }
 
+static GAppInfo *
+xdp_app_info_host_create_gappinfo (XdpAppInfo *app_info)
+{
+  const char *app_id = xdp_app_info_get_id (app_info);
+  g_autofree char *desktop_id = NULL;
+
+  /* Unidentified host apps have an empty app id */
+  if (app_id[0] == '\0')
+    return NULL;
+
+  desktop_id = g_strconcat (app_id, ".desktop", NULL);
+
+  return G_APP_INFO (xdp_desktop_app_info_new (desktop_id));
+}
+
 static void
 xdp_app_info_host_dispose (GObject *object)
 {
@@ -95,6 +110,8 @@ xdp_app_info_host_class_init (XdpAppInfoHostClass *klass)
     xdp_app_info_host_validate_dynamic_launcher;
   app_info_class->is_valid_sub_app_id =
     xdp_app_info_host_is_valid_sub_app_id;
+  app_info_class->create_gappinfo =
+    xdp_app_info_host_create_gappinfo;
 }
 
 static void
@@ -185,7 +202,7 @@ get_app_from_pid (pid_t      pid,
   app_id = _xdp_app_info_host_parse_app_id_from_unit_name (unit);
 
   desktop_id = g_strconcat (app_id, ".desktop", NULL);
-  desktop_app_info = g_desktop_app_info_new (desktop_id);
+  desktop_app_info = xdp_desktop_app_info_new (desktop_id);
 
   if (!desktop_app_info)
     return FALSE;
